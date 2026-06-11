@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Downloaded model weights
+*.pt
+
+# Runtime output
+logs/
+
+# Sample media (large files - add your own locally)
+sample/*.mp4
+sample/*.avi
+
+.DS_Store
