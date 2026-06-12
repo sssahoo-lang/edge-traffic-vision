@@ -1,10 +1,4 @@
-# Edge Traffic Vision — Real-Time Vehicle Detection & Violation Monitoring
-
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)
-![OpenCV](https://img.shields.io/badge/OpenCV-4.x-5C3EE8?logo=opencv&logoColor=white)
-![YOLOv8](https://img.shields.io/badge/Ultralytics-YOLOv8-00FFFF)
-![Tests](https://github.com/sssahoo-lang/edge-traffic-vision/actions/workflows/tests.yml/badge.svg)
-![Status](https://img.shields.io/badge/status-active-success)
+# Edge Traffic Vision - Real-Time Vehicle Detection & Violation Monitoring
 
 > A real-time vehicle detection and restricted-zone violation monitor designed to run on constrained edge hardware (Raspberry Pi class devices), with zero cloud dependency.
 
