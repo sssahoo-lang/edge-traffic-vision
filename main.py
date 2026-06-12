@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import cv2
 
@@ -7,6 +8,7 @@ from src.detector import VehicleDetector
 from src.display import draw_detections, draw_fps, draw_violation_alert, draw_zone
 from src.fps_tracker import FPSTracker
 from src.preprocessing import resize_frame
+from src.speed_monitor import SpeedMonitor
 from src.violation_logger import ViolationLogger
 from src.zone_monitor import ZoneMonitor
 
@@ -34,6 +36,9 @@ def main():
 
     detector = VehicleDetector(args.model, Config.CONFIDENCE_THRESHOLD, Config.VEHICLE_CLASSES)
     zone_monitor = ZoneMonitor(Config.RESTRICTED_ZONE_FRACTIONS)
+    speed_monitor = SpeedMonitor(
+        Config.PIXELS_PER_METER, Config.SPEED_LIMIT_MPH, Config.SPEED_WINDOW_SECONDS
+    )
     logger = ViolationLogger(Config.LOG_DIR)
     fps_tracker = FPSTracker()
 
@@ -46,9 +51,20 @@ def main():
 
             frame = resize_frame(frame, Config.INFERENCE_SIZE)
             detections = detector.track(frame)
-            violations = zone_monitor.check(detections, frame.shape)
-            for violation in violations:
-                logger.log(frame, violation)
+            now = time.perf_counter()
+
+            violations = []
+            for det in detections:
+                speed_mph, is_speeding = speed_monitor.update(det["track_id"], det["centroid"], now)
+                det["speed_mph"] = speed_mph
+                if is_speeding:
+                    violations.append((det, "speeding", speed_mph))
+
+            for det in zone_monitor.check(detections, frame.shape):
+                violations.append((det, "zone_intrusion", det["speed_mph"]))
+
+            for det, violation_type, speed_mph in violations:
+                logger.log(frame, det, violation_type, speed_mph)
 
             fps_tracker.tick()
 
@@ -57,7 +73,8 @@ def main():
                 draw_detections(frame, detections)
                 draw_fps(frame, fps_tracker.fps)
                 if violations:
-                    draw_violation_alert(frame)
+                    alert_text = " / ".join(sorted({v[1].upper().replace("_", " ") for v in violations}))
+                    draw_violation_alert(frame, alert_text)
 
                 cv2.imshow("Edge Traffic Vision", frame)
                 if cv2.waitKey(1) & 0xFF == ord("q"):

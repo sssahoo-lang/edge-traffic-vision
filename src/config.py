@@ -31,4 +31,21 @@ class Config:
         (0.05, 1.0),
     ]
 
+    # Calibration constant for speed estimation: how many pixels in the
+    # resized frame correspond to one meter in the real world. This must
+    # be calibrated per camera position/angle -- e.g. measure a known
+    # real-world distance (a lane marking interval, a fixed object of
+    # known size) and divide its length in pixels by that distance in
+    # meters.
+    PIXELS_PER_METER = 8.0
+
+    # Speed threshold (mph) above which a tracked vehicle is logged as
+    # a speeding violation.
+    SPEED_LIMIT_MPH = 35.0
+
+    # Time window (seconds) over which centroid displacement is measured
+    # to estimate speed. Larger windows smooth out tracking jitter but
+    # react more slowly to speed changes.
+    SPEED_WINDOW_SECONDS = 1.0
+
     LOG_DIR = "logs"
